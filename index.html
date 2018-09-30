@@ -16,6 +16,7 @@
     const ySpacing = 80;
     const xSpacing = 30;
 
+    //tree taken from tree.js file
     var matriarch = {"name":"Amélie", "age": 104, "sex": "f", "parent":null}
 
     var tree = [
@@ -76,13 +77,16 @@
         var person = tree[p];
         zamor.add(person);
     }
-
+    //end of tree taken from tree.js 
+    
     let svgContainer;
 
+    //utility to draw figures with points
     function Point(x,y){
         this.x = x;
         this.y = y;
     }
+    //utility to draw circle with label (shamelessly copies from @smwhr gist, with the Point and Line utility)
     function Circle(p, label) {
         var self = this;
         self.p = p;
@@ -118,14 +122,16 @@
                 .style("stroke-width", 3)
         }
     }
-
+    
+    // function to draw the tree
     function drawTree(tree) {
         recursive_draw_person(tree._root, [0, 1], 1);
         drawItForReal();
     }
 
+    // function to recursively store circle and line data necessary to draw the tree.
     function recursive_draw_person(person, screenWidthAvailable, yData){
-        const xData = (screenWidthAvailable[0] + screenWidthAvailable[1]) / 2;
+        const xData = (screenWidthAvailable[0] + screenWidthAvailable[1]) / 2; //x between 0 and 1 to give the x of the centre of the circle to draw 
         drawPersonAtCoord(person, xData, yData);
         //if person.children non defini, on s'arrête
         const xInter = (screenWidthAvailable[1] - screenWidthAvailable[0]) / person.children.length;
@@ -140,28 +146,33 @@
         })
     }
 
+    //global array filled by recursive_draw_person
     let personToDraw = [];
     let lineToDraw = [];
     let xInterval = [];
 
+    // actually store the data to draw the person, since x is just a number between 0 and 1, and will be replaced by a real x only once the whole tree was mapped
     function drawPersonAtCoord(person, x, y){
         personToDraw.push({"name": person.name, "x": x, "y": y});
     }
 
+    //same as above 
     function drawLineBetweenCoord(x1, y1, x2, y2){
         lineToDraw.push({"x1": x1, "y1": y1, "x2": x2, "y2": y2});
     }
 
+    //really draw the tree with our global arrays 
     function drawItForReal(){
         const minX = Math.min(...xInterval);
         console.log(minX);
-        const canvasWidth = xSpacing/minX;
+        const canvasWidth = xSpacing/minX;// we choose the canvas width based on the minimal Xdelta (in percentage) between 2 circles
 
         svgContainer = d3.select("#graph")
             .append("svg")
             .attr("width", canvasWidth)
             .attr("height", 900);
 
+        //draw the lines and circles by multiplying x by the canvas width and y by the distance between 2 rows
         lineToDraw.forEach(line => {
             const l = new Line(new Point(line.x1 * canvasWidth, line.y1 * ySpacing), new Point(line.x2 * canvasWidth, line.y2 * ySpacing));
             console.log(svgContainer);
